@@ -1,0 +1,40 @@
+{
+  "trm": {
+    "valor": 3141.36,
+    "anterior": 3140.55,
+    "actualizado": "2026-09-03T18:40:49-05:00"
+  },
+  "bitcoin": {
+    "valor": 81307.0,
+    "anterior": 77105.3026,
+    "actualizado": "2026-09-03T18:40:49-05:00"
+  },
+  "usura": {
+    "valor": 24.15,
+    "anterior": 24.58,
+    "actualizado": "2026-09-01"
+  },
+  "colcap": {
+    "valor": 2534.6,
+    "anterior": 2489.53,
+    "actualizado": "2026-09-01"
+  },
+  "dtf": {
+    "valor": 10.19,
+    "anterior": 10.21,
+    "actualizado": "2026-09-01"
+  },
+  "uvr": {
+    "valor": 417.76,
+    "anterior": 417.74,
+    "actualizado": "2026-09-01"
+  },
+  "_meta": {
+    "generado": "2026-09-03T18:40:49-05:00",
+    "fuentes_fallidas": [
+      "wti",
+      "oro",
+      "cafe"
+    ]
+  }
+}
