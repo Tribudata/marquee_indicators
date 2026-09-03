@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marquesina de indicadores</title>
+<style>
+  :root{
+    --tinta:#0d1b2a;
+    --tinta-suave:#16293d;
+    --papel:#f2f4f7;
+    --sube:#3ddc97;
+    --baja:#ff6b6b;
+    --tenue:#8fa3b8;
+    --vel:60; /* px por segundo */
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--papel);
+    font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--tinta);
+  }
+
+  /* ---------- MARQUESINA ---------- */
+  .cinta{
+    display:flex;
+    align-items:stretch;
+    background:var(--tinta);
+    color:#fff;
+    height:44px;
+    overflow:hidden;
+    border-bottom:2px solid var(--tinta-suave);
+  }
+  .cinta__control{
+    flex:0 0 auto;
+    width:38px;
+    display:grid;
+    place-items:center;
+    background:var(--tinta-suave);
+    border:0;
+    color:var(--tenue);
+    cursor:pointer;
+    font-size:12px;
+  }
+  .cinta__control:hover,.cinta__control:focus-visible{color:#fff;outline:none}
+  .cinta__viewport{position:relative;flex:1 1 auto;overflow:hidden}
+  .cinta__pista{
+    display:flex;
+    width:max-content;
+    height:100%;
+    animation:desplazar var(--dur,60s) linear infinite;
+  }
+  .cinta.detenida .cinta__pista{animation-play-state:paused}
+  .cinta__viewport:hover .cinta__pista{animation-play-state:paused}
+  @keyframes desplazar{
+    from{transform:translate3d(0,0,0)}
+    to{transform:translate3d(-50%,0,0)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cinta__pista{animation:none}
+    .cinta__viewport{overflow-x:auto}
+  }
+
+  .grupo{display:flex;align-items:center;margin:0;padding:0;list-style:none}
+  .grupo li{flex:0 0 auto}
+  .grupo a{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    padding:0 18px;
+    height:44px;
+    line-height:44px;
+    text-decoration:none;
+    color:#fff;
+    white-space:nowrap;
+    font-size:13px;
+    border-right:1px solid rgba(255,255,255,.08);
+  }
+  .grupo a:hover{background:var(--tinta-suave)}
+  .nombre{color:var(--tenue);letter-spacing:.02em}
+  .valor{font-variant-numeric:tabular-nums;font-weight:600}
+  .cambio,.porcentaje{font-variant-numeric:tabular-nums;font-size:12px}
+  .sube{color:var(--sube)}
+  .baja{color:var(--baja)}
+  .plano{color:var(--tenue)}
+  .viejo .valor{opacity:.45}
+
+  .pie{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:6px 14px;
+    font-size:11px;
+    color:#5a6b7d;
+    background:#e6eaef;
+  }
+  .pie button{
+    border:1px solid #c3ccd6;background:#fff;border-radius:3px;
+    padding:3px 10px;font-size:11px;cursor:pointer;color:inherit;
+  }
+  .demo{max-width:720px;margin:0 auto;padding:32px 20px;line-height:1.6}
+  .demo h1{font-size:20px;margin:0 0 8px}
+  .demo p{margin:0 0 12px;color:#3d4d5e;font-size:14px}
+  code{background:#e6eaef;padding:1px 5px;border-radius:3px;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="cinta" id="cinta">
+  <button class="cinta__control" id="btnPausa" aria-label="Pausar la marquesina">❚❚</button>
+  <div class="cinta__viewport">
+    <div class="cinta__pista" id="pista"><!-- se llena por JS --></div>
+  </div>
+</div>
+
+<div class="pie">
+  <span id="estado">Cargando indicadores…</span>
+  <button id="btnRefrescar">Actualizar ahora</button>
+</div>
+
+<main class="demo">
+  <h1>Marquesina de indicadores</h1>
+  <p>La cinta se refresca sola cada 5 minutos. TRM y Bitcoin salen de APIs públicas
+  directamente desde el navegador; el resto se lee de <code>indicadores.json</code>,
+  el archivo que debe generar tu proceso programado.</p>
+</main>
+
+<script>
+/* =====================================================================
+   1. DEFINICIÓN DE INDICADORES
+   Cada uno declara de dónde saca el dato. "fuente" puede ser:
+   - una función async que devuelve {valor, anterior}
+   - "json": se busca por su id dentro de indicadores.json
+   ===================================================================== */
+
+const INDICADORES = [
+  { id:'trm',     nombre:'TRM',                    formato:'cop',  url:'https://www.larepublica.co/indicadores-economicos/mercado-cambiario/dolar', fuente:trmDatosAbiertos },
+  { id:'colcap',  nombre:'MSCI COLCAP',            formato:'num',  url:'#', fuente:'json' },
+  { id:'wti',     nombre:'PETRÓLEO WTI',           formato:'usd',  url:'#', fuente:'json' },
+  { id:'cafe',    nombre:'CAFÉ COLOMBIAN MILDS',   formato:'usd',  url:'#', fuente:'json' },
+  { id:'oro',     nombre:'ORO COMPRA BANREP',      formato:'cop',  url:'#', fuente:'json' },
+  { id:'usura',   nombre:'TASA DE USURA CONSUMO',  formato:'pct',  url:'#', fuente:'json' },
+  { id:'dtf',     nombre:'DTF',                    formato:'pct',  url:'#', fuente:'json' },
+  { id:'uvr',     nombre:'UVR',                    formato:'cop',  url:'#', fuente:'json' },
+  { id:'bitcoin', nombre:'BITCOIN',                formato:'usd',  url:'#', fuente:bitcoinCoingecko }
+];
+
+const INTERVALO_MS = 5 * 60 * 1000;   // cada 5 minutos
+// Mismo repo (GitHub Pages):  'data/indicadores.json'
+// Marquesina embebida en otro sitio (Tribudata, WordPress, etc.): usa la URL
+// cruda de GitHub, que sí manda cabecera CORS:
+// 'https://raw.githubusercontent.com/USUARIO/REPO/main/data/indicadores.json'
+const RUTA_JSON    = 'data/indicadores.json';
+
+/* =====================================================================
+   2. FUENTES DE DATOS
+   ===================================================================== */
+
+// TRM oficial: Datos Abiertos Colombia (Socrata). Permite CORS.
+// Pide los dos últimos registros para poder calcular la variación.
+async function trmDatosAbiertos(){
+  const url = 'https://www.datos.gov.co/resource/32sa-8pi3.json?'
+            + encodeURI('$select=valor,vigenciadesde&$order=vigenciadesde DESC&$limit=2');
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('TRM ' + r.status);
+  const d = await r.json();
+  return { valor: Number(d[0].valor), anterior: Number(d[1].valor) };
+}
+
+// Bitcoin: CoinGecko, plan gratuito sin llave, permite CORS.
+async function bitcoinCoingecko(){
+  const url = 'https://api.coingecko.com/api/v3/simple/price'
+            + '?ids=bitcoin&vs_currencies=usd&include_24hr_change=true';
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('BTC ' + r.status);
+  const d = await r.json();
+  const valor  = d.bitcoin.usd;
+  const varPct = d.bitcoin.usd_24h_change;
+  return { valor, anterior: valor / (1 + varPct/100) };
+}
+
+// Archivo generado por tu backend / GitHub Action / cron.
+// Formato esperado:  { "dtf": {"valor": 10.19, "anterior": 10.21}, ... }
+let cacheJson = {};
+async function cargarJson(){
+  try{
+    const r = await fetch(RUTA_JSON + '?t=' + Date.now(), {cache:'no-store'});
+    if(r.ok) cacheJson = await r.json();
+  }catch(e){ /* si no existe, se ignora */ }
+}
+
+/* =====================================================================
+   3. FORMATO
+   ===================================================================== */
+
+const nf = (dec) => new Intl.NumberFormat('es-CO',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+
+function formatear(valor, tipo, conSigno=false){
+  if(valor === null || valor === undefined || isNaN(valor)) return '—';
+  const signo = conSigno ? (valor > 0 ? '+' : (valor < 0 ? '-' : '')) : '';
+  const abs   = conSigno ? Math.abs(valor) : valor;
+  switch(tipo){
+    case 'cop': return signo + '$ ' + nf(2).format(abs);
+    case 'usd': return signo + 'US$ ' + nf(2).format(abs);
+    case 'pct': return signo + nf(2).format(abs) + '%';
+    default:    return signo + nf(2).format(abs);
+  }
+}
+
+/* =====================================================================
+   4. RENDER (se dibuja una sola vez; luego solo se actualizan los textos,
+      así la animación nunca salta)
+   ===================================================================== */
+
+function plantillaGrupo(){
+  return '<ul class="grupo" aria-hidden="false">' + INDICADORES.map(i => `
+    <li data-id="${i.id}">
+      <a href="${i.url}">
+        <span class="nombre">${i.nombre}</span>
+        <span class="valor">—</span>
+        <span class="cambio plano">—</span>
+        <span class="porcentaje plano">—</span>
+      </a>
+    </li>`).join('') + '</ul>';
+}
+
+function construir(){
+  const pista = document.getElementById('pista');
+  // Dos copias idénticas: al desplazar -50% el bucle es invisible.
+  pista.innerHTML = plantillaGrupo() + plantillaGrupo().replace('aria-hidden="false"','aria-hidden="true"');
+  ajustarVelocidad();
+}
+
+function ajustarVelocidad(){
+  const pista = document.getElementById('pista');
+  const ancho = pista.scrollWidth / 2;           // ancho de un solo grupo
+  const vel   = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vel'));
+  pista.style.setProperty('--dur', (ancho / vel) + 's');
+}
+
+function pintar(ind, dato){
+  const { valor, anterior } = dato;
+  const cambio = (anterior === undefined || anterior === null) ? null : valor - anterior;
+  const pct    = (cambio === null || !anterior) ? null : (cambio / anterior) * 100;
+  const clase  = cambio === null ? 'plano' : (cambio > 0 ? 'sube' : (cambio < 0 ? 'baja' : 'plano'));
+
+  document.querySelectorAll(`[data-id="${ind.id}"]`).forEach(li => {
+    li.classList.remove('viejo');
+    li.querySelector('.valor').textContent = formatear(valor, ind.formato);
+    const elCambio = li.querySelector('.cambio');
+    const elPct    = li.querySelector('.porcentaje');
+    elCambio.textContent = cambio === null ? '' : formatear(cambio, ind.formato, true);
+    elPct.textContent    = pct    === null ? '' : formatear(pct, 'pct', true);
+    elCambio.className = 'cambio ' + clase;
+    elPct.className    = 'porcentaje ' + clase;
+  });
+}
+
+function marcarViejo(id){
+  document.querySelectorAll(`[data-id="${id}"]`).forEach(li => li.classList.add('viejo'));
+}
+
+/* =====================================================================
+   5. CICLO DE ACTUALIZACIÓN
+   ===================================================================== */
+
+async function actualizar(){
+  const estado = document.getElementById('estado');
+  estado.textContent = 'Actualizando…';
+  await cargarJson();
+
+  const fallidos = [];
+  await Promise.all(INDICADORES.map(async ind => {
+    try{
+      const dato = (ind.fuente === 'json')
+        ? (cacheJson[ind.id] ?? Promise.reject(new Error('sin dato en JSON')))
+        : await ind.fuente();
+      if(!dato || dato.valor === undefined) throw new Error('sin dato');
+      pintar(ind, dato);
+    }catch(e){
+      fallidos.push(ind.nombre);
+      marcarViejo(ind.id);   // conserva el último valor bueno, atenuado
+    }
+  }));
+
+  ajustarVelocidad();
+  const hora = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  estado.textContent = fallidos.length
+    ? `Actualizado ${hora}. Sin datos nuevos: ${fallidos.join(', ')}.`
+    : `Actualizado ${hora}.`;
+}
+
+/* =====================================================================
+   6. ARRANQUE
+   ===================================================================== */
+
+construir();
+actualizar();
+setInterval(actualizar, INTERVALO_MS);
+
+// Si la pestaña estuvo oculta un rato, refresca al volver.
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') actualizar();
+});
+
+window.addEventListener('resize', ajustarVelocidad);
+
+const cinta = document.getElementById('cinta');
+const btn   = document.getElementById('btnPausa');
+btn.addEventListener('click', () => {
+  const detenida = cinta.classList.toggle('detenida');
+  btn.textContent = detenida ? '▶' : '❚❚';
+  btn.setAttribute('aria-label', detenida ? 'Reanudar la marquesina' : 'Pausar la marquesina');
+});
+document.getElementById('btnRefrescar').addEventListener('click', actualizar);
+</script>
+</body>
+</html>
