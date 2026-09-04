@@ -1,15 +1,19 @@
 """
-Fuente alterna: lee los nueve indicadores de la marquesina de larepublica.co
-en una sola petición.
+Respaldo: lee indicadores desde las páginas individuales de larepublica.co.
 
-Por qué la portada y no las páginas individuales: la cinta de la portada trae
-los nueve valores con su variación en un solo HTML, así que se hace 1 request
-en vez de 9. La estructura es <ul class="list-first"> con un <li> por indicador
-y cuatro <span>: nombre, valor, variación absoluta, variación porcentual.
+Por qué no la portada: la marquesina de la home la arma JavaScript en el
+navegador, así que el HTML crudo no la trae. Las páginas de cada indicador,
+en cambio, vienen renderizadas desde el servidor.
 
-Advertencia: esto depende del maquetado de un sitio de terceros y se rompe
-cuando ellos lo cambien. Úsalo como respaldo, no como fuente principal, y cita
-siempre el origen real del dato (Banco de la República, Superfinanciera, BVC).
+Cómo se leen: no por clase CSS (cambian sin aviso) sino por ancla de texto.
+Se busca el encabezado del indicador y se toman los tres números que vienen
+inmediatamente después: valor, variación absoluta y variación porcentual.
+
+    TASA DE USURA CRÉDITO CONSUMO   29,24%   -0,42%   -1,42%
+                                    valor    cambio   porcentaje
+
+Cita siempre la fuente real del dato (Banco de la República, Superfinanciera,
+BVC), no este intermediario.
 """
 
 from __future__ import annotations
@@ -19,76 +23,81 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-PORTADA = "https://www.larepublica.co/"
+BASE = "https://www.larepublica.co/indicadores-economicos"
 UA = {"User-Agent": "marquesina-indicadores/1.0 (contacto: tu-correo@dominio.co)"}
 
-# Cómo se llama cada indicador en la cinta -> clave interna del proyecto.
-# La comparación se hace en mayúsculas y sin tildes, por si retocan el texto.
-EQUIVALENCIAS = {
-    "TRM": "trm",
-    "MSCI COLCAP": "colcap",
-    "PETROLEO WTI": "wti",
-    "CAFE COLOMBIAN MILDS": "cafe",
-    "ORO COMPRA BANCO DE LA REPUBLICA": "oro",
-    "TASA DE USURA CREDITO CONSUMO": "usura",
-    "DTF": "dtf",
-    "UVR": "uvr",
-    "BITCOIN": "bitcoin",
+# clave interna -> (ruta, texto que antecede a los números en la página)
+PAGINAS = {
+    "colcap": ("/movimiento-accionario/msci-colcap", "MSCI COLCAP"),
+    "dtf":    ("/bancos/dtf", "DTF"),
+    "uvr":    ("/bancos/uvr", "UVR"),
+    "usura":  ("/bancos/tasa-de-usura", "TASA DE USURA CRÉDITO CONSUMO"),
 }
 
-TILDES = str.maketrans("ÁÉÍÓÚÜÑ", "AEIOUUN")
+# Un número al estilo colombiano, con o sin moneda, signo o porcentaje:
+#   $ 3.140,55   -US$ 0,12   +45,07   -1,42%   29,24%
+NUM = r"[-+]?\s?(?:US\$|\$)?\s?\d{1,3}(?:\.\d{3})*(?:,\d+)?\s?%?"
+TRIO = re.compile(NUM + r"\s+" + NUM + r"\s+" + NUM)
+UNO = re.compile(NUM)
+
+TILDES = str.maketrans("ÁÉÍÓÚÜÑáéíóúüñ", "AEIOUUNaeiouun")
 
 
-def normalizar(texto: str) -> str:
-    return " ".join(texto.strip().upper().translate(TILDES).split())
+def normalizar(t: str) -> str:
+    return " ".join(t.upper().translate(TILDES).split())
 
 
 def a_numero(texto: str) -> float:
-    """'$ 3.140,55' -> 3140.55   'US$ -1,14' -> -1.14   '-0,20%' -> -0.2"""
-    limpio = re.sub(r"[^\d,.\-+]", "", texto)      # quita $, US$, %, espacios
-    limpio = limpio.replace(".", "").replace(",", ".")   # formato colombiano
+    limpio = re.sub(r"[^\d,.\-+]", "", texto)
+    limpio = limpio.replace(".", "").replace(",", ".")
     if limpio in ("", "-", "+"):
-        raise ValueError(f"no es número: {texto!r}")
+        raise ValueError("no es numero: " + repr(texto))
     return float(limpio)
 
 
-def leer_marquesina(html: str) -> dict[str, dict]:
-    """Devuelve {clave: {'valor': float, 'anterior': float}} a partir del HTML."""
-    sopa = BeautifulSoup(html, "html.parser")
-    lista = sopa.select_one("ul.list-first") or sopa.select_one(".quote-banner ul")
-    if lista is None:
-        raise ValueError("no se encontró la cinta; cambió el maquetado")
+def extraer(texto_plano: str, encabezado: str) -> dict:
+    """Busca el encabezado y devuelve {'valor':…, 'anterior':…}."""
+    plano = normalizar(texto_plano)
+    ancla = normalizar(encabezado)
 
-    datos: dict[str, dict] = {}
-    for li in lista.select("li"):
-        spans = li.select("span")
-        if len(spans) < 3:
+    # El encabezado puede aparecer varias veces (menú, título, tabla). Se
+    # prueba cada ocurrencia hasta que una traiga tres números detrás.
+    for m in re.finditer(re.escape(ancla), plano):
+        ventana = plano[m.end(): m.end() + 120]
+        trio = TRIO.search(ventana)
+        if not trio:
             continue
-        nombre = normalizar(spans[0].get_text())
-        clave = EQUIVALENCIAS.get(nombre)
-        if clave is None:
+        partes = UNO.findall(trio.group(0))
+        if len(partes) < 2:
             continue
         try:
-            valor = a_numero(spans[1].get_text())
-            cambio = a_numero(spans[2].get_text())
+            valor = a_numero(partes[0])
+            cambio = a_numero(partes[1])
         except ValueError:
             continue
-        # El signo del cambio viene por la clase CSS, no siempre por el texto.
-        clases = spans[2].get("class", [])
-        if "down" in clases:
-            cambio = -abs(cambio)
-        elif "up" in clases:
-            cambio = abs(cambio)
-        datos[clave] = {"valor": valor, "anterior": valor - cambio}
-    if not datos:
-        raise ValueError("la cinta se leyó pero no coincidió ningún indicador")
-    return datos
+        return {"valor": valor, "anterior": valor - cambio}
+    raise ValueError("no se encontraron valores para " + repr(encabezado))
 
 
-def descargar(timeout: int = 20) -> dict[str, dict]:
-    r = requests.get(PORTADA, headers=UA, timeout=timeout)
+def leer_pagina(clave: str, timeout: int = 20) -> dict:
+    ruta, encabezado = PAGINAS[clave]
+    r = requests.get(BASE + ruta, headers=UA, timeout=timeout)
     r.raise_for_status()
-    return leer_marquesina(r.text)
+    texto = BeautifulSoup(r.text, "html.parser").get_text(" ", strip=True)
+    return extraer(texto, encabezado)
+
+
+def descargar(claves=None) -> dict:
+    """Lee las claves pedidas. Lo que falle se omite, no rompe el resto."""
+    datos = {}
+    for clave in (claves or PAGINAS):
+        if clave not in PAGINAS:
+            continue
+        try:
+            datos[clave] = leer_pagina(clave)
+        except Exception as e:                      # noqa: BLE001
+            print("     LR " + clave + ": " + type(e).__name__ + ": " + str(e))
+    return datos
 
 
 if __name__ == "__main__":

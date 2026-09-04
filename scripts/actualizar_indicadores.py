@@ -60,32 +60,33 @@ def bitcoin():
     return valor, anterior
 
 
-def stooq(simbolo: str):
-    """Cierre y cierre anterior de un futuro en Stooq (CSV, sin llave).
+def yahoo(simbolo: str):
+    """Precio y cierre anterior desde Yahoo Finance (sin llave, sin CORS).
 
-    Símbolos usados aquí (verifícalos antes de confiar en ellos):
-      cl.f -> WTI    gc.f -> oro    kc.f -> café arábica ICE
+    Sustituye a Stooq, que bloquea las IPs de los servidores de GitHub.
+      CL=F -> WTI    GC=F -> oro onza troy    KC=F -> café arábica ICE
     """
-    url = f"https://stooq.com/q/d/l/?s={simbolo}&i=d"
-    txt = requests.get(url, headers=UA, timeout=TIMEOUT).text
-    filas = list(csv.DictReader(io.StringIO(txt)))
-    if len(filas) < 2:
-        raise ValueError(f"stooq devolvió {len(filas)} filas para {simbolo}")
-    return float(filas[-1]["Close"]), float(filas[-2]["Close"])
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{simbolo}"
+    r = requests.get(url, params={"range": "5d", "interval": "1d"},
+                     headers=UA, timeout=TIMEOUT)
+    r.raise_for_status()
+    meta = r.json()["chart"]["result"][0]["meta"]
+    valor = float(meta["regularMarketPrice"])
+    anterior = meta.get("previousClose") or meta.get("chartPreviousClose")
+    return valor, (float(anterior) if anterior else None)
 
 
 def wti():
-    return stooq("cl.f")
+    return yahoo("CL=F")
 
 
 def oro_internacional():
-    return stooq("gc.f")
+    return yahoo("GC=F")
 
 
 def cafe():
-    # Ojo: esto es el contrato KC de ICE, no el "Colombian Milds" que publica
-    # la FNC. Si necesitas el precio interno, la fuente es federaciondecafeteros.org.
-    return stooq("kc.f")
+    # Contrato KC de ICE (arábica), no el "Colombian Milds" interno.
+    return yahoo("KC=F")
 
 
 FUENTES = {
@@ -152,7 +153,7 @@ def main() -> int:
     if USAR_RESPALDO_LR and faltantes:
         try:
             from fuente_larepublica import descargar as leer_lr
-            lr = leer_lr()
+            lr = leer_lr(faltantes)
             for clave in faltantes:
                 if clave in lr:
                     salida[clave] = {
