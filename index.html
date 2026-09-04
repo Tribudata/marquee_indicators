@@ -139,20 +139,43 @@ const INDICADORES = [
   { id:'trm',     nombre:'TRM',                    formato:'cop',  url:'https://www.larepublica.co/indicadores-economicos/mercado-cambiario/dolar', fuente:trmDatosAbiertos },
   { id:'colcap',  nombre:'MSCI COLCAP',            formato:'num',  url:'#', fuente:'json' },
   { id:'wti',     nombre:'PETRÓLEO WTI',           formato:'usd',  url:'#', fuente:'json' },
-  { id:'cafe',    nombre:'CAFÉ COLOMBIAN MILDS',   formato:'usd',  url:'#', fuente:'json' },
-  { id:'oro',     nombre:'ORO COMPRA BANREP',      formato:'cop',  url:'#', fuente:'json' },
+  { id:'cafe',    nombre:'CAFÉ ICE (KC)',   formato:'usd',  url:'#', fuente:'json' },
+  { id:'oro',     nombre:'ORO (ONZA TROY)',      formato:'usd',  url:'#', fuente:'json' },
   { id:'usura',   nombre:'TASA DE USURA CONSUMO',  formato:'pct',  url:'#', fuente:'json' },
   { id:'dtf',     nombre:'DTF',                    formato:'pct',  url:'#', fuente:'json' },
   { id:'uvr',     nombre:'UVR',                    formato:'cop',  url:'#', fuente:'json' },
   { id:'bitcoin', nombre:'BITCOIN',                formato:'usd',  url:'#', fuente:bitcoinCoingecko }
 ];
 
-const INTERVALO_MS = 5 * 60 * 1000;   // cada 5 minutos
-// Mismo repo (GitHub Pages):  'data/indicadores.json'
-// Marquesina embebida en otro sitio (Tribudata, WordPress, etc.): usa la URL
-// cruda de GitHub, que sí manda cabecera CORS:
-// 'https://raw.githubusercontent.com/USUARIO/REPO/main/data/indicadores.json'
-const RUTA_JSON    = 'data/indicadores.json';
+const INTERVALO_MS = 5 * 60 * 1000;   // cada cuánto refresca la cinta
+
+/* ---------------------------------------------------------------------
+   LO ÚNICO QUE DEBES EDITAR
+   Pon aquí tu usuario y repo de GitHub, exactamente como aparecen en la
+   URL:  github.com/USUARIO/REPO
+   --------------------------------------------------------------------- */
+const REPO = 'Tribudata/marquee_indicators';
+const RAMA = 'main';
+
+/* Resolución automática de la ruta del JSON:
+   - Si esta página se sirve desde el propio repo (GitHub Pages o local),
+     usa la ruta relativa: mismo origen, sin CORS de por medio.
+   - Si la cinta está embebida en otro sitio (Tribudata, WordPress, etc.),
+     lee el archivo crudo desde GitHub, que responde con CORS abierto.
+   Para forzar una u otra, reemplaza esta constante por la URL que quieras. */
+const RUTA_JSON = (() => {
+  const remoto = `https://raw.githubusercontent.com/${REPO}/${RAMA}/data/indicadores.json`;
+  const h = location.hostname;
+  // Solo dos casos usan la ruta relativa: el sitio publicado en Pages y tu
+  // servidor local. Cualquier otro contexto (un iframe, una vista previa, tu
+  // sitio propio) lee el archivo crudo de GitHub, que tiene CORS abierto.
+  // Ojo: un hostname vacío es un iframe sandbox, NO es local.
+  const enPages = h.endsWith('github.io');
+  const enLocal = h === 'localhost' || h === '127.0.0.1';
+  return (enPages || enLocal)
+    ? new URL('data/indicadores.json', document.baseURI).href
+    : remoto;
+})();
 
 /* =====================================================================
    2. FUENTES DE DATOS
@@ -184,11 +207,24 @@ async function bitcoinCoingecko(){
 // Archivo generado por tu backend / GitHub Action / cron.
 // Formato esperado:  { "dtf": {"valor": 10.19, "anterior": 10.21}, ... }
 let cacheJson = {};
+let errorJson = null;   // se muestra en el pie para poder diagnosticar
 async function cargarJson(){
+  errorJson = null;
   try{
     const r = await fetch(RUTA_JSON + '?t=' + Date.now(), {cache:'no-store'});
-    if(r.ok) cacheJson = await r.json();
-  }catch(e){ /* si no existe, se ignora */ }
+    if(!r.ok){
+      errorJson = `el archivo respondió ${r.status}`;
+      console.error('indicadores.json:', r.status, RUTA_JSON);
+      return;
+    }
+    cacheJson = await r.json();
+    const claves = Object.keys(cacheJson).filter(k => k !== '_meta');
+    console.log(`indicadores.json cargado (${claves.length}):`, claves.join(', '));
+    if(claves.length === 0) errorJson = 'el archivo está vacío';
+  }catch(e){
+    errorJson = 'no se pudo leer el archivo (revisa la consola)';
+    console.error('indicadores.json:', e, RUTA_JSON);
+  }
 }
 
 /* =====================================================================
@@ -287,9 +323,13 @@ async function actualizar(){
 
   ajustarVelocidad();
   const hora = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-  estado.textContent = fallidos.length
-    ? `Actualizado ${hora}. Sin datos nuevos: ${fallidos.join(', ')}.`
-    : `Actualizado ${hora}.`;
+  if(errorJson){
+    estado.textContent = `Actualizado ${hora}. ${RUTA_JSON}: ${errorJson}.`;
+  }else{
+    estado.textContent = fallidos.length
+      ? `Actualizado ${hora}. Sin datos nuevos: ${fallidos.join(', ')}.`
+      : `Actualizado ${hora}.`;
+  }
 }
 
 /* =====================================================================
