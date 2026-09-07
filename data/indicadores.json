@@ -2,54 +2,54 @@
   "trm": {
     "valor": 3126.08,
     "anterior": 3141.36,
-    "actualizado": "2026-09-04T18:37:36-05:00"
+    "actualizado": "2026-09-07T12:01:57-05:00"
   },
   "bitcoin": {
-    "valor": 79698.0,
-    "anterior": 81186.8664,
-    "actualizado": "2026-09-04T18:37:36-05:00"
+    "valor": 79003.0,
+    "anterior": 79660.2616,
+    "actualizado": "2026-09-07T12:01:57-05:00"
   },
   "wti": {
-    "valor": 91.22,
-    "anterior": 85.76,
-    "actualizado": "2026-09-04T18:37:36-05:00"
+    "valor": 91.48,
+    "anterior": 90.22,
+    "actualizado": "2026-09-07T12:01:57-05:00"
   },
   "oro": {
-    "valor": 4477.2,
-    "anterior": 4431.1,
-    "actualizado": "2026-09-04T18:37:36-05:00"
+    "valor": 4476.6,
+    "anterior": 4348.0,
+    "actualizado": "2026-09-07T12:01:57-05:00"
   },
   "cafe": {
     "valor": 292.9,
-    "anterior": 343.9,
-    "actualizado": "2026-09-04T18:37:36-05:00"
+    "anterior": 342.25,
+    "actualizado": "2026-09-07T12:01:57-05:00"
   },
   "colcap": {
-    "valor": 2544.78,
-    "anterior": 2534.6000000000004,
-    "actualizado": "2026-09-04T18:37:36-05:00",
+    "valor": 2559.51,
+    "anterior": 2544.5600000000004,
+    "actualizado": "2026-09-07T12:01:57-05:00",
     "fuente": "larepublica"
   },
   "usura": {
     "valor": 29.24,
     "anterior": 29.66,
-    "actualizado": "2026-09-04T18:37:36-05:00",
+    "actualizado": "2026-09-07T12:01:57-05:00",
     "fuente": "larepublica"
   },
   "dtf": {
-    "valor": 10.19,
-    "anterior": 10.209999999999999,
-    "actualizado": "2026-09-04T18:37:36-05:00",
+    "valor": 10.05,
+    "anterior": 10.190000000000001,
+    "actualizado": "2026-09-07T12:01:57-05:00",
     "fuente": "larepublica"
   },
   "uvr": {
-    "valor": 417.79,
-    "anterior": 417.77000000000004,
-    "actualizado": "2026-09-04T18:37:36-05:00",
+    "valor": 417.86,
+    "anterior": 417.84000000000003,
+    "actualizado": "2026-09-07T12:01:57-05:00",
     "fuente": "larepublica"
   },
   "_meta": {
-    "generado": "2026-09-04T18:37:36-05:00",
+    "generado": "2026-09-07T12:01:57-05:00",
     "fuentes_fallidas": []
   }
 }
