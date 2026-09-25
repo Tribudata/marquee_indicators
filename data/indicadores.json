@@ -2,54 +2,54 @@
   "trm": {
     "valor": 3329.61,
     "anterior": 3264.39,
-    "actualizado": "2026-09-25T11:18:32-05:00"
+    "actualizado": "2026-09-25T15:11:56-05:00"
   },
   "bitcoin": {
-    "valor": 84008.0,
-    "anterior": 84597.9205,
-    "actualizado": "2026-09-25T11:18:32-05:00"
+    "valor": 83947.0,
+    "anterior": 84376.3018,
+    "actualizado": "2026-09-25T15:11:56-05:00"
   },
   "wti": {
-    "valor": 91.93,
+    "valor": 92.24,
     "anterior": 95.78,
-    "actualizado": "2026-09-25T11:18:32-05:00"
+    "actualizado": "2026-09-25T15:11:56-05:00"
   },
   "oro": {
-    "valor": 4329.9,
+    "valor": 4327.3,
     "anterior": 4383.9,
-    "actualizado": "2026-09-25T11:18:32-05:00"
+    "actualizado": "2026-09-25T15:11:56-05:00"
   },
   "cafe": {
-    "valor": 280.7,
+    "valor": 278.1,
     "anterior": 276.4,
-    "actualizado": "2026-09-25T11:18:32-05:00"
+    "actualizado": "2026-09-25T15:11:56-05:00"
   },
   "colcap": {
-    "valor": 2587.08,
+    "valor": 2585.17,
     "anterior": 2609.65,
-    "actualizado": "2026-09-25T11:18:32-05:00",
+    "actualizado": "2026-09-25T15:11:56-05:00",
     "fuente": "larepublica"
   },
   "usura": {
     "valor": 29.24,
     "anterior": 29.66,
-    "actualizado": "2026-09-25T11:18:32-05:00",
+    "actualizado": "2026-09-25T15:11:56-05:00",
     "fuente": "larepublica"
   },
   "dtf": {
     "valor": 10.26,
     "anterior": 10.22,
-    "actualizado": "2026-09-25T11:18:32-05:00",
+    "actualizado": "2026-09-25T15:11:56-05:00",
     "fuente": "larepublica"
   },
   "uvr": {
     "valor": 418.58,
     "anterior": 418.53,
-    "actualizado": "2026-09-25T11:18:32-05:00",
+    "actualizado": "2026-09-25T15:11:56-05:00",
     "fuente": "larepublica"
   },
   "_meta": {
-    "generado": "2026-09-25T11:18:32-05:00",
+    "generado": "2026-09-25T15:11:56-05:00",
     "fuentes_fallidas": []
   }
 }
