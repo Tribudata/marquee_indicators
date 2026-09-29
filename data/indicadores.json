@@ -2,54 +2,57 @@
   "trm": {
     "valor": 3349.63,
     "anterior": 3306.86,
-    "actualizado": "2026-09-28T19:06:46-05:00"
+    "actualizado": "2026-09-29T12:27:30-05:00"
   },
   "bitcoin": {
     "valor": 83502.0,
     "anterior": 84508.8373,
-    "actualizado": "2026-09-28T19:06:46-05:00"
+    "actualizado": "2026-09-28T19:06:46-05:00",
+    "obsoleto": true
   },
   "wti": {
-    "valor": 93.25,
-    "anterior": 92.16,
-    "actualizado": "2026-09-28T19:06:46-05:00"
+    "valor": 90.54,
+    "anterior": 94.61,
+    "actualizado": "2026-09-29T12:27:30-05:00"
   },
   "oro": {
-    "valor": 4157.0,
-    "anterior": 4318.4,
-    "actualizado": "2026-09-28T19:06:46-05:00"
+    "valor": 4178.7,
+    "anterior": 4298.0,
+    "actualizado": "2026-09-29T12:27:30-05:00"
   },
   "cafe": {
-    "valor": 288.4,
-    "anterior": 275.9,
-    "actualizado": "2026-09-28T19:06:46-05:00"
+    "valor": 291.95,
+    "anterior": 275.35,
+    "actualizado": "2026-09-29T12:27:30-05:00"
   },
   "colcap": {
-    "valor": 2580.34,
-    "anterior": 2585.17,
-    "actualizado": "2026-09-28T19:06:46-05:00",
+    "valor": 2566.95,
+    "anterior": 2579.33,
+    "actualizado": "2026-09-29T12:27:30-05:00",
     "fuente": "larepublica"
   },
   "usura": {
     "valor": 29.24,
     "anterior": 29.66,
-    "actualizado": "2026-09-28T19:06:46-05:00",
+    "actualizado": "2026-09-29T12:27:30-05:00",
     "fuente": "larepublica"
   },
   "dtf": {
     "valor": 10.38,
     "anterior": 10.260000000000002,
-    "actualizado": "2026-09-28T19:06:46-05:00",
+    "actualizado": "2026-09-29T12:27:30-05:00",
     "fuente": "larepublica"
   },
   "uvr": {
-    "valor": 418.74,
-    "anterior": 418.69,
-    "actualizado": "2026-09-28T19:06:46-05:00",
+    "valor": 418.8,
+    "anterior": 418.75,
+    "actualizado": "2026-09-29T12:27:30-05:00",
     "fuente": "larepublica"
   },
   "_meta": {
-    "generado": "2026-09-28T19:06:46-05:00",
-    "fuentes_fallidas": []
+    "generado": "2026-09-29T12:27:30-05:00",
+    "fuentes_fallidas": [
+      "bitcoin"
+    ]
   }
 }
