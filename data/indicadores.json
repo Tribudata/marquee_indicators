@@ -2,54 +2,54 @@
   "trm": {
     "valor": 3191.47,
     "anterior": 3163.76,
-    "actualizado": "2026-10-21T18:51:34-05:00"
+    "actualizado": "2026-10-22T11:26:23-05:00"
   },
   "bitcoin": {
-    "valor": 84147.0,
-    "anterior": 82940.8895,
-    "actualizado": "2026-10-21T18:51:34-05:00"
+    "valor": 81556.0,
+    "anterior": 84618.4428,
+    "actualizado": "2026-10-22T11:26:23-05:00"
   },
   "wti": {
-    "valor": 97.96,
-    "anterior": 101.41,
-    "actualizado": "2026-10-21T18:51:34-05:00"
+    "valor": 98.77,
+    "anterior": 103.66,
+    "actualizado": "2026-10-22T11:26:23-05:00"
   },
   "oro": {
-    "valor": 4141.1,
-    "anterior": 4181.1,
-    "actualizado": "2026-10-21T18:51:34-05:00"
+    "valor": 4064.7,
+    "anterior": 4160.1,
+    "actualizado": "2026-10-22T11:26:23-05:00"
   },
   "cafe": {
-    "valor": 316.65,
-    "anterior": 305.6,
-    "actualizado": "2026-10-21T18:51:34-05:00"
+    "valor": 310.0,
+    "anterior": 315.7,
+    "actualizado": "2026-10-22T11:26:23-05:00"
   },
   "colcap": {
-    "valor": 2560.52,
-    "anterior": 2533.61,
-    "actualizado": "2026-10-21T18:51:34-05:00",
+    "valor": 2513.73,
+    "anterior": 2560.37,
+    "actualizado": "2026-10-22T11:26:23-05:00",
     "fuente": "larepublica"
   },
   "usura": {
     "valor": 28.59,
     "anterior": 29.24,
-    "actualizado": "2026-10-21T18:51:34-05:00",
+    "actualizado": "2026-10-22T11:26:23-05:00",
     "fuente": "larepublica"
   },
   "dtf": {
     "valor": 10.44,
     "anterior": 10.389999999999999,
-    "actualizado": "2026-10-21T18:51:34-05:00",
+    "actualizado": "2026-10-22T11:26:23-05:00",
     "fuente": "larepublica"
   },
   "uvr": {
-    "valor": 419.97,
-    "anterior": 419.92,
-    "actualizado": "2026-10-21T18:51:34-05:00",
+    "valor": 420.02,
+    "anterior": 419.96999999999997,
+    "actualizado": "2026-10-22T11:26:23-05:00",
     "fuente": "larepublica"
   },
   "_meta": {
-    "generado": "2026-10-21T18:51:34-05:00",
+    "generado": "2026-10-22T11:26:23-05:00",
     "fuentes_fallidas": []
   }
 }
