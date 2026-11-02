@@ -2,54 +2,54 @@
   "trm": {
     "valor": 3182.99,
     "anterior": 3166.91,
-    "actualizado": "2026-10-30T20:20:39-05:00"
+    "actualizado": "2026-11-02T16:15:36-05:00"
   },
   "bitcoin": {
-    "valor": 77451.0,
-    "anterior": 76939.1831,
-    "actualizado": "2026-10-30T20:20:39-05:00"
+    "valor": 76749.0,
+    "anterior": 77858.1694,
+    "actualizado": "2026-11-02T16:15:36-05:00"
   },
   "wti": {
-    "valor": 102.95,
-    "anterior": 101.76,
-    "actualizado": "2026-10-30T20:20:39-05:00"
+    "valor": 95.92,
+    "anterior": 102.78,
+    "actualizado": "2026-11-02T16:15:36-05:00"
   },
   "oro": {
-    "valor": 3884.9,
-    "anterior": 4038.4,
-    "actualizado": "2026-10-30T20:20:39-05:00"
+    "valor": 3956.6,
+    "anterior": 4051.6,
+    "actualizado": "2026-11-02T16:15:36-05:00"
   },
   "cafe": {
-    "valor": 287.15,
-    "anterior": 300.95,
-    "actualizado": "2026-10-30T20:20:39-05:00"
+    "valor": 294.15,
+    "anterior": 286.75,
+    "actualizado": "2026-11-02T16:15:36-05:00"
   },
   "colcap": {
     "valor": 2493.95,
     "anterior": 2489.71,
-    "actualizado": "2026-10-30T20:20:39-05:00",
+    "actualizado": "2026-11-02T16:15:36-05:00",
     "fuente": "larepublica"
   },
   "usura": {
-    "valor": 28.59,
-    "anterior": 29.24,
-    "actualizado": "2026-10-30T20:20:39-05:00",
+    "valor": 28.34,
+    "anterior": 28.59,
+    "actualizado": "2026-11-02T16:15:36-05:00",
     "fuente": "larepublica"
   },
   "dtf": {
-    "valor": 10.55,
-    "anterior": 10.440000000000001,
-    "actualizado": "2026-10-30T20:20:39-05:00",
+    "valor": 10.7,
+    "anterior": 10.549999999999999,
+    "actualizado": "2026-11-02T16:15:36-05:00",
     "fuente": "larepublica"
   },
   "uvr": {
-    "valor": 420.42,
-    "anterior": 420.37,
-    "actualizado": "2026-10-30T20:20:39-05:00",
+    "valor": 420.57,
+    "anterior": 420.52,
+    "actualizado": "2026-11-02T16:15:36-05:00",
     "fuente": "larepublica"
   },
   "_meta": {
-    "generado": "2026-10-30T20:20:39-05:00",
+    "generado": "2026-11-02T16:15:36-05:00",
     "fuentes_fallidas": []
   }
 }
